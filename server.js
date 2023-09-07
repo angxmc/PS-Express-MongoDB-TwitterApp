@@ -8,7 +8,7 @@ const methodOverride = require("method-override");
 
 //* Variables
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
 //* App Config
 app.set("view engine", "jsx");
@@ -17,6 +17,7 @@ app.engine("jsx", jsxEngine());
 //* Middleware
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
+app.use(express.static("public"));
 app.use(methodOverride("_method"));
 
 // - Routes -----------
@@ -55,7 +56,7 @@ app.get("/tweets/new", (req, res) => {
  * Edit
  */
 app.get("/tweets/:id/edit", async (req, res) => {
-  const {id} = req.params;
+  const { id } = req.params;
   try {
     //find the tweets
     const tweet = await Tweet.findById(id);
@@ -127,14 +128,13 @@ app.delete("/api/tweets/:id", async (req, res) => {
 /*
  * Add Comments
  */
-app.put('/api/tweets/addcomment', async (req, res)=>{
-  const {id} = req.params;
-  const tweet = await Tweet.findById(id)
+app.put("/api/tweets/addcomment", async (req, res) => {
+  const { id } = req.params;
+  const tweet = await Tweet.findById(id);
   tweet.comments.push(req.body);
-  const updatedTweet = await Tweet.findByIdAndUpdate(id, tweet, {new: true});
-  res.redirect(`/tweets/${id}`)
-
-})
+  const updatedTweet = await Tweet.findByIdAndUpdate(id, tweet, { new: true });
+  res.redirect(`/tweets/${id}`);
+});
 /**
  * * Increase Likes
  */
@@ -148,7 +148,7 @@ app.get("/api/tweets/add-like/:id", async (req, res) => {
   const updatedTweet = await Tweet.findByIdAndUpdate(id, tweetToUpdate, {
     new: true,
   });
-  res.redirect('/tweets')
+  res.redirect("/tweets");
 });
 
 /**
